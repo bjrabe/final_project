@@ -185,7 +185,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>Next, we note that our categorical variables are saved as data type double. We will change these to factors with the appropriate levels (discussed above).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="ot">&lt;-</span> dm_data <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Diabetes_binary =</span> <span class="fu">factor</span>(Diabetes_binary, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'no'</span>, <span class="st">'yes'</span>)),</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Diabetes =</span> <span class="fu">factor</span>(Diabetes_binary, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'no'</span>, <span class="st">'yes'</span>)),</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">Smoker =</span> <span class="fu">factor</span>(Smoker, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'no'</span>, <span class="st">'yes'</span>)),</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">PhysActivity =</span> <span class="fu">factor</span>(PhysActivity, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'no'</span>, <span class="st">'yes'</span>)),</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Fruits =</span> <span class="fu">factor</span>(Fruits, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'no'</span>, <span class="st">'yes'</span>)),</span>
@@ -214,8 +214,8 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
                    0                    0                    0 
                  Sex                  Age            Education 
                    0                    0                    0 
-              Income 
-                   0 </code></pre>
+              Income             Diabetes 
+                   0                    0 </code></pre>
 </div>
 </div>
 <p>We see from the output that there are no missing values. Therefore, we are ready to proceed with summarizations.</p>
@@ -226,17 +226,17 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>Let’s get started by simply seeing how many individuals in the data set have diabetes. We will look at this both numerically and graphically.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes_binary) <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes) <span class="sc">|&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
-  Diabetes_binary  count
-  &lt;fct&gt;            &lt;int&gt;
-1 no              218334
-2 yes              35346</code></pre>
+  Diabetes  count
+  &lt;fct&gt;     &lt;int&gt;
+1 no       218334
+2 yes       35346</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes'</span>, <span class="at">title =</span> <span class="st">'Counts of Diabetes vs. No Diabetes'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes'</span>, <span class="at">title =</span> <span class="st">'Counts of Diabetes vs. No Diabetes'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -249,7 +249,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>Next, let’s examine whether BMI appears similar between those with and without diabetes. From what we know, elevated weight should be a risk factor for diabetes, so we would expect a higher BMI in those with diabetes. Again we will look at both a numerical description (contingency table) and a graphical description.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes_binary) <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes) <span class="sc">|&gt;</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="st">'mean_BMI'</span> <span class="ot">=</span> <span class="fu">mean</span>(BMI),</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">'median_BMI'</span> <span class="ot">=</span> <span class="fu">median</span>(BMI),</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">'sd_BMI'</span> <span class="ot">=</span> <span class="fu">sd</span>(BMI),</span>
@@ -257,13 +257,13 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>            )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 5
-  Diabetes_binary mean_BMI median_BMI sd_BMI IQR_BMI
-  &lt;fct&gt;              &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-1 no                  27.8         27   6.29       7
-2 yes                 31.9         31   7.36       8</code></pre>
+  Diabetes mean_BMI median_BMI sd_BMI IQR_BMI
+  &lt;fct&gt;       &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+1 no           27.8         27   6.29       7
+2 yes          31.9         31   7.36       8</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Diabetes_binary, <span class="at">y =</span> BMI)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes'</span>, <span class="at">y =</span> <span class="st">'BMI'</span>, <span class="at">title =</span> <span class="st">'BMI Summary by Diabetes Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Diabetes, <span class="at">y =</span> BMI)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes'</span>, <span class="at">y =</span> <span class="st">'BMI'</span>, <span class="at">title =</span> <span class="st">'BMI Summary by Diabetes Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -275,7 +275,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>From the contingency table, it seems that mean and median BMI are higher in those with diabetes, as expected. The box plot is a bit unusual looking. There are a lot of outliers in each group. Let’s look at a density plot to get a better sense of the distribution of BMI between the two groups.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(BMI)) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Diabetes_binary), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'BMI'</span>, <span class="at">title =</span> <span class="st">'BMI Distribution by Diabetes Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(BMI)) <span class="sc">+</span> <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Diabetes), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'BMI'</span>, <span class="at">title =</span> <span class="st">'BMI Distribution by Diabetes Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -288,27 +288,27 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>What about smoking? It isn’t common wisdom that smoking is a major risk factor for diabetes. Let’s see if diabetes rates are higher in smokers by looking at numerical and graphical summaries.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes_binary, Smoker) <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes, Smoker) <span class="sc">|&gt;</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>()) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'Diabetes_binary'. You can override using
-the `.groups` argument.</code></pre>
+<pre><code>`summarise()` has grouped output by 'Diabetes'. You can override using the
+`.groups` argument.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
-# Groups:   Diabetes_binary [2]
-  Diabetes_binary Smoker  count
-  &lt;fct&gt;           &lt;fct&gt;   &lt;int&gt;
-1 no              no     124228
-2 no              yes     94106
-3 yes             no      17029
-4 yes             yes     18317</code></pre>
+# Groups:   Diabetes [2]
+  Diabetes Smoker  count
+  &lt;fct&gt;    &lt;fct&gt;   &lt;int&gt;
+1 no       no     124228
+2 no       yes     94106
+3 yes      no      17029
+4 yes      yes     18317</code></pre>
 </div>
 </div>
 <p>This contingency table is a bit tough to interpret, since the number of people with diabetes is very dissimilar to the number of people without diabetes. Let’s make it easier on ourselves by creating a bar plot instead.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Smoker), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status Counts by Smoking Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Smoker), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status Counts by Smoking Status'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -321,7 +321,7 @@ the `.groups` argument.</code></pre>
 <p>Can we attenuate the relationship between smoking and diabetes by incorporating another risk factor which represents “unhealthiness?” Let’s try by creating another bar plot of diabetes and smoking status, this time faceted by physical activity.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Smoker), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>PhysActivity) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status Counts by Smoking Status and Physical Activity'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Smoker), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>PhysActivity) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status Counts by Smoking Status and Physical Activity'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -334,27 +334,27 @@ the `.groups` argument.</code></pre>
 <p>What about fruit? Fruit has natural sugars, so on one hand we may suspect it is a risk factor for diabetes. On the other hand, fruit is considered by many to be a healthy food, which may lead us to suspect that it is protective against diabetes. Let’s see what the data shows.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes_binary, Fruits) <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Diabetes, Fruits) <span class="sc">|&gt;</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>`summarise()` has grouped output by 'Diabetes_binary'. You can override using
-the `.groups` argument.</code></pre>
+<pre><code>`summarise()` has grouped output by 'Diabetes'. You can override using the
+`.groups` argument.</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
-# Groups:   Diabetes_binary [2]
-  Diabetes_binary Fruits  count
-  &lt;fct&gt;           &lt;fct&gt;   &lt;int&gt;
-1 no              no      78129
-2 no              yes    140205
-3 yes             no      14653
-4 yes             yes     20693</code></pre>
+# Groups:   Diabetes [2]
+  Diabetes Fruits  count
+  &lt;fct&gt;    &lt;fct&gt;   &lt;int&gt;
+1 no       no      78129
+2 no       yes    140205
+3 yes      no      14653
+4 yes      yes     20693</code></pre>
 </div>
 </div>
 <p>Again, a contingency table is not the easiest to interpret in this case since the counts of diabetes vs no diabetes are lopsided. As before, we will take a look at a bar plot, which is more interpretable.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Fruits), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Fruit Consumption'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Fruits), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Fruit Consumption'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -367,7 +367,7 @@ the `.groups` argument.</code></pre>
 <p>Let’s create the same plot but facet by vegetable consumption.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Fruits), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Veggies) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Fruit and Vegetable Consumption'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Fruits), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>Veggies) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Fruit and Vegetable Consumption'</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -380,7 +380,7 @@ the `.groups` argument.</code></pre>
 <p>The last thing we will look at is diabetes rates by sex.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sex, Diabetes_binary) <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sex, Diabetes) <span class="sc">|&gt;</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">count =</span> <span class="fu">n</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'Sex'. You can override using the `.groups`
@@ -389,15 +389,15 @@ argument.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
 # Groups:   Sex [2]
-  Sex    Diabetes_binary  count
-  &lt;fct&gt;  &lt;fct&gt;            &lt;int&gt;
-1 female no              123563
-2 female yes              18411
-3 male   no               94771
-4 male   yes              16935</code></pre>
+  Sex    Diabetes  count
+  &lt;fct&gt;  &lt;fct&gt;     &lt;int&gt;
+1 female no       123563
+2 female yes       18411
+3 male   no        94771
+4 male   yes       16935</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes_binary)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Sex), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Diabetes)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Sex), <span class="at">position =</span> <span class="st">'dodge'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'Diabetes Status'</span>, <span class="at">title =</span> <span class="st">'Diabetes Status by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -409,7 +409,7 @@ argument.</code></pre>
 <p>There are clearly more females than males in this data set, since for both diabetes and non-diabetes groups there are more females than males. The difference between males and females is more pronounced in the non-diabetes group, suggesting perhaps that males are more likely to have diabetes than females. To see this a little bit better, we can use a stacked bar chart with normalized height instead.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Sex)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Diabetes_binary), <span class="at">position =</span> <span class="st">'fill'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Diabetes Rates by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(Sex)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Diabetes), <span class="at">position =</span> <span class="st">'fill'</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">'Diabetes Rates by Sex'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

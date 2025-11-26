@@ -2,27 +2,99 @@
 title: "Modeling"
 format: html
 editor: visual
+code-overflow: wrap
 editor_options: 
   chunk_output_type: console
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+We start by loading the packages we will need for work on this page.
 
 ```{r}
-1 + 1
+library(tidyverse)
+library(tidymodels)
 ```
 
-You can add options to executable code like this
+
+## Introduction
+
+On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven't seen it, head over to ***. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:
+
+1.  BMI: Body Mass Index, which is weight in kg divided by the square of height in meters (quantitative)
+2.  Smoker: Smoked 100 or more cigarettes in lifetime (categorical, levels yes and no)
+3.  PhysActivity: Physical activity in past 30 days, not including job (categorical, levels yes and no)
+4.  Fruits: Consume fruit one or more times per day (categorical, levels yes and no)
+5.  Veggies: Consume vegetables one or more times per day (categorical, levels yes and no)
+6.  HvyAlcoholConsump: 14 or more alcoholic drinks per week for a male and 7 or more drinks per week for a female (categorical, levels yes and no)
+7.  DiffWalk: Serious difficulty walking or climbing stairs (categorical, levels yes and no)
+8.  Sex: (categorical, levels male and female)
+
+We will do this by splitting the data into training and test sets (70/30 split), fitting the models on the training set using 5-fold cross validation to find the best tuning parameters for each model, and then comparing the two models on the test set. 
+
+## Data and Common Steps
+
+In this section, we will perform all steps which are common to both the classification tree and random forest models. We use the tidymodels framework for this purpose. 
+
+First, we read in the data.
 
 ```{r}
-#| echo: false
-2 * 2
+dm_data <- read_csv('diabetes_binary_health_indicators_BRFSS2015.csv')
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+Next, we note that our categorical variables are saved as data type double. We will change these to factors with the appropriate levels (discussed above).
+
+```{r}
+dm_data <- dm_data |>
+  mutate(Diabetes = factor(Diabetes_binary, levels = c(0, 1), labels = c('no', 'yes')),
+         Smoker = factor(Smoker, levels = c(0, 1), labels = c('no', 'yes')),
+         PhysActivity = factor(PhysActivity, levels = c(0,1), labels = c('no', 'yes')),
+         Fruits = factor(Fruits, levels = c(0,1), labels = c('no', 'yes')),
+         Veggies = factor(Veggies, levels = c(0,1), labels = c('no', 'yes')),
+         HvyAlcoholConsump = factor(HvyAlcoholConsump, levels = c(0,1), labels = c('no', 'yes')),
+         DiffWalk = factor(DiffWalk, levels = c(0,1), labels = c('no', 'yes')),
+         Sex = factor(Sex, levels = c(0,1), labels = c('female', 'male'))
+         )
+```
+
+Next we check for missing values.
+
+```{r}
+is.na(dm_data) |>
+  colSums()
+```
+
+Fortunately we see there is no missing data. 
+
+Now we can split out data into training and test sets. As discussed above, we use a 70/30 training/test split. We set a seed to ensure reproducibility. 
+
+```{r}
+set.seed(1993)
+
+dm_split <- initial_split(dm_data, prop = 0.7)
+dm_train <- training(dm_split)
+dm_test <- testing(dm_split)
+```
+
+Now that we have split our data, we want to create 5 folds on our training set to be used in 5-fold cross validation.
+
+```{r}
+dm_5_fold <- vfold_cv(dm_train, 5)
+```
+
+Now we are ready to make our recipe, which will be common to both the classification tree and random forest models. Note we do not need to normalize our numeric predictors for either a classification tree or a random forest. 
+
+```{r}
+dm_rec <- recipe(Diabetes ~ BMI + Smoker + PhysActivity + Fruits + Veggies + HvyAlcoholConsump + DiffWalk + Sex, data = dm_train) |>
+  step_dummy(all_factor(), -Diabetes) 
+  
+```
+
+
+## Classification Tree
+
+In this section, we will fit a classification tree to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a classification tree is.
+
+A classification tree ***
+
+## Random Forest
+
+
