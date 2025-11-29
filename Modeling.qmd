@@ -1,5 +1,7 @@
 ---
 title: "Modeling"
+author: Brian Rabe
+date: 11/29/2025
 format: html
 editor: visual
 code-overflow: wrap
@@ -91,9 +93,9 @@ dm_rec <- recipe(Diabetes ~ BMI + Smoker + PhysActivity + Fruits + Veggies + Hvy
 
 In this section, we will fit a classification tree to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a classification tree is. We are only discussing the classification case since this is what we are doing in this project, but a decision tree can be created for a regression problem as well, in which case it is called a regression tree.
 
-A classification tree is a modeling technique that, once fit, makes a prediction by following branches of a tree according to values of predictor inputs. In essence, it is like following a flowchart to make a decision based on seeing which conditions apply at each branch. The tree is fit by dividing the predictor space into different regions. Then on each region, a different prediction is made. The regions are created through recursive binary splitting, a greedy algorithm. By greedy algorithm, we mean one that considers the optimal choice at only the single step under consideration, without considering other steps or how they may influence the model overall. Recursive binary splitting occurs by considering each data point in the region under consideration (called a node) and choosing the point which, after splitting the data in two on either side of the point, the sum of squared error loss calculated on either side of the point is minimized. The new regions formed on either side of this point are called nodes. The process is repeated in each node, which creates new nodes inside of the original nodes. The process continues in this way inside each new node until a specified number of branches have been formed or until each node no longer contains a specified minimum number of points required to continue breaking up that node into smaller nodes. 
+A classification tree is a modeling technique that, once fit, makes a prediction by following branches of a tree according to values of predictor inputs. In essence, it is like following a flowchart to make a decision based on seeing which conditions apply at each branch. The tree is fit by dividing the predictor space into different regions. Then on each region, a different prediction is made. The regions are created through recursive binary splitting, a greedy algorithm. By greedy algorithm, we mean one that considers the optimal choice at only the single step under consideration, without considering other steps or how they may influence the model overall. Recursive binary splitting occurs by considering each data point in the region under consideration (called a node) and choosing the point which, after splitting the data in two on either side of the point, the sum of squared error loss calculated on either side of the point is minimized. The new regions formed on either side of this point are called nodes. The process is repeated in each node, which creates new nodes inside of the original nodes. The process continues in this way inside each new node until a specified number of branches have been formed or until each node no longer contains a specified minimum number of points required to continue breaking up that node into smaller nodes.
 
-Now that we have discussed what a classification tree is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the cost complexity parameter and choose our own values for tree depth and minimum number of points per node to continue branching (the argument for this parameter is `min_n`). 
+Now that we have discussed what a classification tree is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the cost complexity parameter and choose our own values for tree depth and minimum number of points per node to continue branching (the argument for this parameter is `min_n`).
 
 ```{r}
 ### create model ----
@@ -125,11 +127,11 @@ tree_final <- tree_wkfl |>
   last_fit(dm_split, metrics = metric_set(mn_log_loss))
 ```
 
-Now our best classification tree model, fit to the entire training set, is stored in the object `tree_final`. We will use this object in a later step. 
+Now our best classification tree model, fit to the entire training set, is stored in the object `tree_final`. We will use this object in a later step.
 
 ## Random Forest
 
-In this section, we will fit a random forest to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a random forest model is. We are only discussing the classification case since this is what we are doing in this project, but a random forest can be created for a regression problem as well. 
+In this section, we will fit a random forest to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a random forest model is. We are only discussing the classification case since this is what we are doing in this project, but a random forest can be created for a regression problem as well.
 
 To explain a random forest, we start with the classification tree discussed above. We begin by creating B different resamples from the data with replacement (called bootstrap resamples), and we fit a classification tree to each of the B bootstrap resamples. So we are creating B different trees. The reason we do this is that classification trees (and regression trees) are very sensitive to changes in the data. So you may get a completely different model and completely different predictions with only small changes in the data used to train the model. In technical terms, single tree models have a high variance. By creating B different trees and considering all of them when making predictions, we can reduce the variance in our model. However, in random forests particularly, when creating each branch of a given tree, we are not considering all of the explanatory variables. Instead, we take a random subset of the predictors (explanatory variables) at each step and only consider those when determining a branch point. The branch is determined and when creating the next branch inside our new nodes, we consider a different subset of the explanatory variables to be used to determine the branch point. The reason for doing this is is reduces correlation between the B different trees we are fitting. The idea is that if any of the predictors are very strong, they will be featured in most of the B trees, which makes the trees highly correlated. When the trees are correlated, we don't achieve the desired reduction in variance we are targeting by fitting different trees on the different bootstrap resamples. By considering only a subset of predictors at each step, we are ensuring the trees are not dominated by only a few strong predictors. Thus, there is less correlation between trees and a greater reduction of variance in our estimates from the model. Once we have our B different trees, we select our predicted class by choosing the most common class predicted among the B different trees from the given input values (values of the explanatory variables).
 
@@ -162,11 +164,11 @@ rf_final <- rf_wkfl |>
   last_fit(dm_split, metrics = metric_set(mn_log_loss))
 ```
 
-Now our best random forest model, fit to the entire training set, is stored in the object `rf_final`. We will use this object, along with `tree_final`, in the next step. 
+Now our best random forest model, fit to the entire training set, is stored in the object `rf_final`. We will use this object, along with `tree_final`, in the next step.
 
 ## Final Model Selection
 
-In this section, we compare our classification tree model and random forest model to see which performs better on the test set. The metric we are using is log loss. 
+In this section, we compare our classification tree model and random forest model to see which performs better on the test set. The metric we are using is log loss.
 
 ```{r}
 rbind(tree_final |> collect_metrics(),
@@ -178,6 +180,10 @@ rbind(tree_final |> collect_metrics(),
 
 We see that the random forest model has a lower value for log loss on the test set. Therefore, we will choose the random forest model as our "best" model!
 
+In our API, we are going to fit our "best" model to the entire data set. In order to do this, we need to know what the tuned value is for our parameter `mtry`.
 
+```{r}
+rf_param_best
+```
 
-
+It looks like the optimal value is 3, which means that during the fitting of the random forest model to the full data set in the API, we should be considering a random sample of 3 of the available 8 predictors at each step of the recursive binary splitting algorithm (described above). Since we have already found this value, we can just set the `mtry` argument to 3 when it comes time to fit the model to the whole data set.
