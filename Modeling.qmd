@@ -14,10 +14,9 @@ library(tidyverse)
 library(tidymodels)
 ```
 
-
 ## Introduction
 
-On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven't seen it, head over to ***. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:
+On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven't seen it, head over to \*\*\*. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:
 
 1.  BMI: Body Mass Index, which is weight in kg divided by the square of height in meters (quantitative)
 2.  Smoker: Smoked 100 or more cigarettes in lifetime (categorical, levels yes and no)
@@ -28,11 +27,11 @@ On this page, we create two models (a classification tree and a random forest) w
 7.  DiffWalk: Serious difficulty walking or climbing stairs (categorical, levels yes and no)
 8.  Sex: (categorical, levels male and female)
 
-We will do this by splitting the data into training and test sets (70/30 split), fitting the models on the training set using 5-fold cross validation to find the best tuning parameters for each model, and then comparing the two models on the test set. 
+We will do this by splitting the data into training and test sets (70/30 split), fitting the models on the training set using 5-fold cross validation to find the best tuning parameters for each model, and then comparing the two models on the test set.
 
 ## Data and Common Steps
 
-In this section, we will perform all steps which are common to both the classification tree and random forest models. We use the tidymodels framework for this purpose. 
+In this section, we will perform all steps which are common to both the classification tree and random forest models. We use the tidymodels framework for this purpose.
 
 First, we read in the data.
 
@@ -62,9 +61,9 @@ is.na(dm_data) |>
   colSums()
 ```
 
-Fortunately we see there is no missing data. 
+Fortunately we see there is no missing data.
 
-Now we can split out data into training and test sets. As discussed above, we use a 70/30 training/test split. We set a seed to ensure reproducibility. 
+Now we can split out data into training and test sets. As discussed above, we use a 70/30 training/test split. We set a seed to ensure reproducibility.
 
 ```{r}
 set.seed(1993)
@@ -80,7 +79,7 @@ Now that we have split our data, we want to create 5 folds on our training set t
 dm_5_fold <- vfold_cv(dm_train, 5)
 ```
 
-Now we are ready to make our recipe, which will be common to both the classification tree and random forest models. Note we do not need to normalize our numeric predictors for either a classification tree or a random forest. 
+Now we are ready to make our recipe, which will be common to both the classification tree and random forest models. Note we do not need to normalize our numeric predictors for either a classification tree or a random forest.
 
 ```{r}
 dm_rec <- recipe(Diabetes ~ BMI + Smoker + PhysActivity + Fruits + Veggies + HvyAlcoholConsump + DiffWalk + Sex, data = dm_train) |>
@@ -88,13 +87,97 @@ dm_rec <- recipe(Diabetes ~ BMI + Smoker + PhysActivity + Fruits + Veggies + Hvy
   
 ```
 
-
 ## Classification Tree
 
-In this section, we will fit a classification tree to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a classification tree is.
+In this section, we will fit a classification tree to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a classification tree is. We are only discussing the classification case since this is what we are doing in this project, but a decision tree can be created for a regression problem as well, in which case it is called a regression tree.
 
-A classification tree ***
+A classification tree is a modeling technique that, once fit, makes a prediction by following branches of a tree according to values of predictor inputs. In essence, it is like following a flowchart to make a decision based on seeing which conditions apply at each branch. The tree is fit by dividing the predictor space into different regions. Then on each region, a different prediction is made. The regions are created through recursive binary splitting, a greedy algorithm. By greedy algorithm, we mean one that considers the optimal choice at only the single step under consideration, without considering other steps or how they may influence the model overall. Recursive binary splitting occurs by considering each data point in the region under consideration (called a node) and choosing the point which, after splitting the data in two on either side of the point, the sum of squared error loss calculated on either side of the point is minimized. The new regions formed on either side of this point are called nodes. The process is repeated in each node, which creates new nodes inside of the original nodes. The process continues in this way inside each new node until a specified number of branches have been formed or until each node no longer contains a specified minimum number of points required to continue breaking up that node into smaller nodes. 
+
+Now that we have discussed what a classification tree is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the cost complexity parameter and choose our own values for tree depth and minimum number of points per node to continue branching (the argument for this parameter is `min_n`). 
+
+```{r}
+### create model ----
+tree_mod <- decision_tree(cost_complexity = tune(),
+                           tree_depth = 5,
+                           min_n = 10) |>
+  set_engine('rpart') |>
+  set_mode('classification')
+
+### create workflow ---
+tree_wkfl <- workflow() |>
+  add_recipe(dm_rec) |>
+  add_model(tree_mod) 
+
+### tune cost complexity using 5-fold cv ---
+tree_grid <- tree_wkfl |>
+  tune_grid(resamples = dm_5_fold,
+            grid = grid_regular(cost_complexity(),
+                                levels = 10),
+            metrics = metric_set(mn_log_loss))
+
+### extract best parameter value for cost complexity ---
+tree_param_best <- tree_grid |>
+  select_best(metric = 'mn_log_loss')
+
+### fit model to whole training set ---
+tree_final <- tree_wkfl |>
+  finalize_workflow(tree_param_best) |>
+  last_fit(dm_split, metrics = metric_set(mn_log_loss))
+```
+
+Now our best classification tree model, fit to the entire training set, is stored in the object `tree_final`. We will use this object in a later step. 
 
 ## Random Forest
+
+In this section, we will fit a random forest to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a random forest model is. We are only discussing the classification case since this is what we are doing in this project, but a random forest can be created for a regression problem as well. 
+
+To explain a random forest, we start with the classification tree discussed above. We begin by creating B different resamples from the data with replacement (called bootstrap resamples), and we fit a classification tree to each of the B bootstrap resamples. So we are creating B different trees. The reason we do this is that classification trees (and regression trees) are very sensitive to changes in the data. So you may get a completely different model and completely different predictions with only small changes in the data used to train the model. In technical terms, single tree models have a high variance. By creating B different trees and considering all of them when making predictions, we can reduce the variance in our model. However, in random forests particularly, when creating each branch of a given tree, we are not considering all of the explanatory variables. Instead, we take a random subset of the predictors (explanatory variables) at each step and only consider those when determining a branch point. The branch is determined and when creating the next branch inside our new nodes, we consider a different subset of the explanatory variables to be used to determine the branch point. The reason for doing this is is reduces correlation between the B different trees we are fitting. The idea is that if any of the predictors are very strong, they will be featured in most of the B trees, which makes the trees highly correlated. When the trees are correlated, we don't achieve the desired reduction in variance we are targeting by fitting different trees on the different bootstrap resamples. By considering only a subset of predictors at each step, we are ensuring the trees are not dominated by only a few strong predictors. Thus, there is less correlation between trees and a greater reduction of variance in our estimates from the model. Once we have our B different trees, we select our predicted class by choosing the most common class predicted among the B different trees from the given input values (values of the explanatory variables).
+
+Now that we have discussed what a random forest is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the number of predictors that will be randomly sampled at each split when creating the tree models (parameter is called `mtry`). We will also limit the number of trees to 100 to avoid impractically long compute time. The other parameters will be chosen by the software.
+
+```{r}
+### create a model ---
+rf_mod <- rand_forest(mtry = tune(), trees = 100) |>
+  set_engine('ranger') |>
+  set_mode('classification')
+
+### create a workflow ---
+rf_wkfl <- workflow() |>
+  add_recipe(dm_rec) |>
+  add_model(rf_mod)
+
+### tune mtry using 5-fold cv ---
+rf_grid <- rf_wkfl |>
+  tune_grid(resamples = dm_5_fold,
+            grid = 7,
+            metrics = metric_set(mn_log_loss))
+
+### extract best parameter value for mtry ---
+rf_param_best <- rf_grid |>
+  select_best(metric = 'mn_log_loss')
+
+### fit model to whole training set ---
+rf_final <- rf_wkfl |>
+  finalize_workflow(rf_param_best) |>
+  last_fit(dm_split, metrics = metric_set(mn_log_loss))
+```
+
+Now our best random forest model, fit to the entire training set, is stored in the object `rf_final`. We will use this object, along with `tree_final`, in the next step. 
+
+## Final Model Selection
+
+In this section, we compare our classification tree model and random forest model to see which performs better on the test set. The metric we are using is log loss. 
+
+```{r}
+rbind(tree_final |> collect_metrics(),
+      rf_final |> collect_metrics()) |>
+  mutate('model' = c('tree', 'random_forest')) |>
+  select(model, .metric, .estimate)
+  
+```
+
+We see that the random forest model has a lower value for log loss on the test set. Therefore, we will choose the random forest model as our "best" model!
+
+
 
 
