@@ -42,6 +42,7 @@ rf_wkfl <- workflow() |>
 rf_fit <- rf_wkfl |>
   fit(data = dm_data) 
 
+
 ###Now we start defining the API ----
 
 #* @apiTitle Diabetes Prediction
@@ -66,6 +67,7 @@ function(bmi = mean(dm_data$BMI),
          diff_walk = dm_data$DiffWalk |> summary() |> which.max() |> names(),
          sex = dm_data$Sex |> summary() |> which.max() |> names()) {
   
+  
     ### define new data frame for input values with same column names as data the model was trained on ---
   df <- data.frame('BMI' = as.double(bmi),
                    'Smoker' = smoker,
@@ -75,31 +77,42 @@ function(bmi = mean(dm_data$BMI),
                    'HvyAlcoholConsump' = alcohol,
                    'DiffWalk' = diff_walk,
                    'Sex' = sex)
+
+  
   
   ### predict presence or absence of diabetes ----
-  predict(rf_fit, df)
+  ifelse(sum(c(smoker, activity, fruits, veggies, alcohol, diff_walk, sex) %in% c('no','yes', 'male', 'female')) == 7,
+         predict(rf_fit, df),
+         'Please double check that you have typed your categorical inputs in correctly. All inputs should be written with lowercase characters only. Defaults have been set in the event you leave an input box blank.')
 }
 
-#* Plot a histogram
+### Three example function calls to API for pred endpoint ---
+# 1. http://127.0.0.1:35861/pred?bmi=49&smoker=yes&activity=no&fruits=no&veggies=yes&alcohol=no&diff_walk=yes&sex=male
+# 2. http://127.0.0.1:35861/pred?bmi=55&smoker=no&activity=no&fruits=no&veggies=no&alcohol=yes&diff_walk=no&sex=female
+# 3. http://127.0.0.1:35861/pred?bmi=57&smoker=yes&activity=no&fruits=no&veggies=no&alcohol=no&diff_walk=no&sex=male
+
+
+#* Return author name and URL for rendered website
+#* @get /info
+function(){
+  'Author name: Brian Rabe;    Rendered website URL: https://bjrabe.github.io/final_project/'
+}
+
+
+#* Return confusion matrix for model fit
 #* @serializer png
-#* @get /plot
-function() {
-    rand <- rnorm(100)
-    hist(rand)
+#* @get /confusion
+function(){
+  
+  ### create confusion matrix
+  confusion_matrix <- conf_mat(data = dm_data |> mutate(estimate = predict(rf_fit, dm_data) |> pull()),
+                               truth = Diabetes,
+                               estimate = estimate) |>
+    autoplot(type = 'heatmap')
+  
+  ### print confusion matrix ----
+   confusion_matrix
 }
 
-#* Return the sum of two numbers
-#* @param a The first number to add
-#* @param b The second number to add
-#* @post /sum
-function(a, b) {
-    as.numeric(a) + as.numeric(b)
-}
 
-# Programmatically alter your API
-#* @plumber
-function(pr) {
-    pr %>%
-        # Overwrite the default serializer to return unboxed JSON
-        pr_set_serializer(serializer_unboxed_json())
-}
+

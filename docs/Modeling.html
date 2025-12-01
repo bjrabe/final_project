@@ -359,7 +359,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="do">### tune mtry using 5-fold cv ---</span></span>
 <span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>rf_grid <span class="ot">&lt;-</span> rf_wkfl <span class="sc">|&gt;</span></span>
 <span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">resamples =</span> dm_5_fold,</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> <span class="dv">7</span>,</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> <span class="dv">5</span>,</span>
 <span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(mn_log_loss))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>i Creating pre-processing data to finalize 1 unknown parameter: "mtry"</code></pre>
@@ -399,7 +399,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <pre><code># A tibble: 1 × 2
    mtry .config        
   &lt;int&gt; &lt;chr&gt;          
-1     3 pre0_mod3_post0</code></pre>
+1     3 pre0_mod2_post0</code></pre>
 </div>
 </div>
 <p>It looks like the optimal value is 3, which means that during the fitting of the random forest model to the full data set in the API, we should be considering a random sample of 3 of the available 8 predictors at each step of the recursive binary splitting algorithm (described above). Since we have already found this value, we can just set the <code>mtry</code> argument to 3 when it comes time to fit the model to the whole data set.</p>

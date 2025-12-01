@@ -151,7 +151,7 @@ rf_wkfl <- workflow() |>
 ### tune mtry using 5-fold cv ---
 rf_grid <- rf_wkfl |>
   tune_grid(resamples = dm_5_fold,
-            grid = 7,
+            grid = 5,
             metrics = metric_set(mn_log_loss))
 
 ### extract best parameter value for mtry ---
