@@ -183,7 +183,4 @@ dm_data |>
 
 This chart makes it clear that males in this data set are slightly more likely to have diabetes than females in this data set. Because the difference is small and this is only one random sample of the population, this result does not necessarily imply that the true population rates of diabetes are different in males vs females.
 
-This concludes our EDA. To head over to the webpage for viewing our modeling on the data set, click the following link: https://bjrabe.github.io/final_project/Modeling.html
-
-
-
+This concludes our EDA. To head over to the webpage for viewing our modeling on the data set, click the following link: <https://bjrabe.github.io/final_project/Modeling.html>

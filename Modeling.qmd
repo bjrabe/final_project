@@ -18,7 +18,7 @@ library(tidymodels)
 
 ## Introduction
 
-On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven't seen it, head over to \*\*\*. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:
+On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven't seen it, head over to <https://bjrabe.github.io/final_project/EDA.html>. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:
 
 1.  BMI: Body Mass Index, which is weight in kg divided by the square of height in meters (quantitative)
 2.  Smoker: Smoked 100 or more cigarettes in lifetime (categorical, levels yes and no)

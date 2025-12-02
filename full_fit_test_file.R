@@ -22,7 +22,7 @@ dm_data <- dm_data |>
 
 ### create recipe ---
 dm_rec <- recipe(Diabetes ~ BMI + Smoker + PhysActivity + Fruits + Veggies + HvyAlcoholConsump + DiffWalk + Sex, data = dm_data) |>
-  step_dummy(all_factor(), -Diabetes) 
+  step_dummy(all_factor(), -Diabetes)
 
 ### create model ---
 ### note we can set mtry to 3 without tuning because we found this to be the optimal parameter on our modeling page ---
