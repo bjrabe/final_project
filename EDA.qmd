@@ -1,7 +1,7 @@
 ---
 title: "EDA"
 author: Brian Rabe
-date: 11/29/2025
+date: 12/2/2025
 format: html
 editor: visual
 code-overflow: wrap
@@ -162,6 +162,26 @@ dm_data |>
 
 We see that for those who eat vegetables, they are more likely to eat fruit than not, regardless of diabetes status. And in those who don't eat vegetables, they are more likely to NOT eat fruit, regardless of diabetes status. This suggests fruit and vegetable consumption are associated, supporting the idea that people who eat fruits are probably generally healthier, as they eat vegetables too, regardless of diabetes status.
 
+Next we look at physical activity and diabetes status. Again we will create both a contingency table and a bar plot, expecting the bar plot to be easier to interpret.
+
+```{r}
+dm_data |>
+  group_by(Diabetes, PhysActivity) |>
+  summarize(count = n())
+
+dm_data |>
+  ggplot(aes(Diabetes)) + geom_bar(aes(fill = PhysActivity), position = 'dodge') + labs(x = 'Diabetes Status', title = 'Diabetes Status by Physical Activity')
+```
+
+It seems that people are more likely than not to have done physical activity in the past 30 days, regardless of diabetes status. It also appears that in those without diabetes, a much larger proportion of people are physically active compared with the group having diabetes. This suggests a relationship between physical activity and diabetes. As noted with other previously discussed variables, we cannot tell whether physical activity is causal for diabetes, the other way around, or whether neither plays a causal role in the other and that unconsidered confounding variables could explain the observed relationship between the variables. Let's facet by difficulty walking and see if the relationships change.
+
+```{r}
+dm_data |>
+  ggplot(aes(Diabetes)) + geom_bar(aes(fill = PhysActivity), position = 'dodge') + facet_wrap(~DiffWalk) + labs(x = 'Diabetes Status', title = 'Diabetes Status by Physical Activity and Difficulty Walking')
+```
+
+In those who don't have difficulty walking, the plot looks similar to the unfaceted plot, except more diabetics are physically active. In those who do have difficulty walking, activity rates are similar between those with diabetes and those without diabetes. This suggests that physical inactivity alone is unlikely to cause diabetes! 
+
 The last thing we will look at is diabetes rates by sex.
 
 ```{r}
@@ -177,7 +197,7 @@ There are clearly more females than males in this data set, since for both diabe
 
 ```{r}
 dm_data |>
-  ggplot(aes(Sex)) + geom_bar(aes(fill = Diabetes), position = 'fill') + labs(title = 'Diabetes Rates by Sex')
+  ggplot(aes(Sex)) + geom_bar(aes(fill = Diabetes), position = 'fill') + labs(y = 'Proportion', title = 'Diabetes Rates by Sex')
   
 ```
 

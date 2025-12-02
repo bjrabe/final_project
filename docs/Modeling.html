@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Brian Rabe">
-<meta name="dcterms.date" content="2025-11-29">
+<meta name="dcterms.date" content="2025-12-02">
 
 <title>Modeling</title>
 <style>
@@ -135,7 +135,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 29, 2025</p>
+      <p class="date">December 2, 2025</p>
     </div>
   </div>
   
@@ -220,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status on the explanatory variables we explored on the EDA webpage. If you haven’t seen it, head over to <a href="https://bjrabe.github.io/final_project/EDA.html" class="uri">https://bjrabe.github.io/final_project/EDA.html</a>. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:</p>
+<p>On this page, we create two models (a classification tree and a random forest) which model the response variable diabetes status (categorical, levels yes and no) on the explanatory variables we explored on the EDA webpage. If you haven’t seen it, head over to <a href="https://bjrabe.github.io/final_project/EDA.html" class="uri">https://bjrabe.github.io/final_project/EDA.html</a>. The following provides a list of explanatory variables we will use, a description of each variable, and whether the variable is quantitative or categorical:</p>
 <ol type="1">
 <li>BMI: Body Mass Index, which is weight in kg divided by the square of height in meters (quantitative)</li>
 <li>Smoker: Smoked 100 or more cigarettes in lifetime (categorical, levels yes and no)</li>
@@ -231,11 +231,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>DiffWalk: Serious difficulty walking or climbing stairs (categorical, levels yes and no)</li>
 <li>Sex: (categorical, levels male and female)</li>
 </ol>
-<p>We will do this by splitting the data into training and test sets (70/30 split), fitting the models on the training set using 5-fold cross validation to find the best tuning parameters for each model, and then comparing the two models on the test set.</p>
+<p>We will accomplish our task by splitting the data into training and test sets (70/30 split), fitting the models on the training set using 5-fold cross validation to find the best tuning parameters for each model, and then comparing the two models on the test set.</p>
 </section>
 <section id="data-and-common-steps" class="level2">
 <h2 class="anchored" data-anchor-id="data-and-common-steps">Data and Common Steps</h2>
-<p>In this section, we will perform all steps which are common to both the classification tree and random forest models. We use the tidymodels framework for this purpose.</p>
+<p>In this section, we will perform all steps which are common to creating both the classification tree and random forest models. We use the tidymodels framework for this purpose.</p>
 <p>First, we read in the data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dm_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'diabetes_binary_health_indicators_BRFSS2015.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -286,7 +286,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 </div>
 </div>
 <p>Fortunately we see there is no missing data.</p>
-<p>Now we can split out data into training and test sets. As discussed above, we use a 70/30 training/test split. We set a seed to ensure reproducibility.</p>
+<p>Now we can split the data into training and test sets. As discussed above, we use a 70/30 training/test split. We set a seed to ensure reproducibility.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1993</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -307,7 +307,7 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <section id="classification-tree" class="level2">
 <h2 class="anchored" data-anchor-id="classification-tree">Classification Tree</h2>
 <p>In this section, we will fit a classification tree to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a classification tree is. We are only discussing the classification case since this is what we are doing in this project, but a decision tree can be created for a regression problem as well, in which case it is called a regression tree.</p>
-<p>A classification tree is a modeling technique that, once fit, makes a prediction by following branches of a tree according to values of predictor inputs. In essence, it is like following a flowchart to make a decision based on seeing which conditions apply at each branch. The tree is fit by dividing the predictor space into different regions. Then on each region, a different prediction is made. The regions are created through recursive binary splitting, a greedy algorithm. By greedy algorithm, we mean one that considers the optimal choice at only the single step under consideration, without considering other steps or how they may influence the model overall. Recursive binary splitting occurs by considering each data point in the region under consideration (called a node) and choosing the point which, after splitting the data in two on either side of the point, the sum of squared error loss calculated on either side of the point is minimized. The new regions formed on either side of this point are called nodes. The process is repeated in each node, which creates new nodes inside of the original nodes. The process continues in this way inside each new node until a specified number of branches have been formed or until each node no longer contains a specified minimum number of points required to continue breaking up that node into smaller nodes.</p>
+<p>A classification tree is a modeling technique that, once fit, makes a prediction by following branches of a tree according to values of predictor inputs. In essence, it is like following a flowchart to make a decision based on seeing which conditions apply at each branch. The tree is fit by dividing the predictor space into different regions. Then on each region, a different prediction is made. The regions are created through recursive binary splitting, a greedy algorithm. By greedy algorithm, we mean one that considers the optimal choice at only the single step under consideration, without considering other steps or how they may influence the model overall. Recursive binary splitting occurs by considering each data point in the region of predictor space under consideration (called a node) and choosing the point for which, after splitting the data in two on either side of the point, the sum of values of the loss function as calculated on either side of the point is minimized. The new regions formed on either side of this point are called nodes. The process is repeated in each node, which creates new nodes inside of the original nodes. The process continues in this way inside each new node until a specified number of branches have been formed or until each node no longer contains a specified minimum number of points required to continue breaking up that node into smaller nodes.</p>
 <p>Now that we have discussed what a classification tree is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the cost complexity parameter and choose our own values for tree depth and minimum number of points per node to continue branching (the argument for this parameter is <code>min_n</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">### create model ----</span></span>
@@ -343,8 +343,9 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <section id="random-forest" class="level2">
 <h2 class="anchored" data-anchor-id="random-forest">Random Forest</h2>
 <p>In this section, we will fit a random forest to predict presence or absence of diabetes using the explanatory variables outlined above. Before we get into this, we discuss what a random forest model is. We are only discussing the classification case since this is what we are doing in this project, but a random forest can be created for a regression problem as well.</p>
-<p>To explain a random forest, we start with the classification tree discussed above. We begin by creating B different resamples from the data with replacement (called bootstrap resamples), and we fit a classification tree to each of the B bootstrap resamples. So we are creating B different trees. The reason we do this is that classification trees (and regression trees) are very sensitive to changes in the data. So you may get a completely different model and completely different predictions with only small changes in the data used to train the model. In technical terms, single tree models have a high variance. By creating B different trees and considering all of them when making predictions, we can reduce the variance in our model. However, in random forests particularly, when creating each branch of a given tree, we are not considering all of the explanatory variables. Instead, we take a random subset of the predictors (explanatory variables) at each step and only consider those when determining a branch point. The branch is determined and when creating the next branch inside our new nodes, we consider a different subset of the explanatory variables to be used to determine the branch point. The reason for doing this is is reduces correlation between the B different trees we are fitting. The idea is that if any of the predictors are very strong, they will be featured in most of the B trees, which makes the trees highly correlated. When the trees are correlated, we don’t achieve the desired reduction in variance we are targeting by fitting different trees on the different bootstrap resamples. By considering only a subset of predictors at each step, we are ensuring the trees are not dominated by only a few strong predictors. Thus, there is less correlation between trees and a greater reduction of variance in our estimates from the model. Once we have our B different trees, we select our predicted class by choosing the most common class predicted among the B different trees from the given input values (values of the explanatory variables).</p>
-<p>Now that we have discussed what a random forest is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the number of predictors that will be randomly sampled at each split when creating the tree models (parameter is called <code>mtry</code>). We will also limit the number of trees to 100 to avoid impractically long compute time. The other parameters will be chosen by the software.</p>
+<p>To explain a random forest, we start with the classification tree discussed above. We begin by creating B different resamples from the data with replacement (called bootstrap resamples), and we fit a classification tree to each of the B bootstrap resamples. So we are creating B different trees. The reason we do this is that classification trees (and regression trees) are very sensitive to changes in the data. So you may get a completely different model and completely different predictions with only small changes in the data used to train the model. In technical terms, single tree models have a high variance. By creating B different trees and considering all of them when making predictions, we can reduce the variance in our model. However, in random forests particularly, when creating each split (branch) of a given tree, we are not considering all of the explanatory variables. Instead, we take a random subset of the predictors (explanatory variables) at each step and only consider those when determining a branch point. The branch is determined and when creating the next split (branch) inside our new nodes, we consider a different random subset of the explanatory variables to be used to determine the branch point. The reason for doing this is that it reduces correlation between the B different trees we are fitting. The idea is that if any of the predictors are very strong, they will be featured in most of the B trees, which makes the trees highly correlated. When the trees are correlated, we don’t achieve the desired reduction in variance we are targeting by fitting different trees on the different bootstrap resamples. By considering only a subset of predictors at each step, we are ensuring the trees are not dominated by only a few strong predictors. Thus, there is less correlation between trees and a greater reduction of variance in our estimates from the model. Once we have our B different trees, we select our predicted class by choosing the most common class predicted among the B different trees from the given input values (values of the explanatory variables).</p>
+<p>Now that we have discussed what a random forest is, we will fit one to our training data. We use 5-fold cross validation to find the best value of our tuning parameter(s) and then fit the best model to the entire training set. We will tune on the number of predictors that will be randomly sampled at each split when creating the tree models (parameter is called <code>mtry</code>). When setting up a grid of tuning parameters, we could have R create one for us using the <code>grid_regular()</code> function as we did for the classification tree above. However, the <code>mtry</code> parameter is simple in the sense that we have 8 predictors, so at each split in each tree we must be selecting somewhere between 1 and 8 predictors for binary fitting at that step. Therefore in this case it is just as easy to create our own tuning grid with the candidate parameter values being the integers 1,2,…,8.</p>
+<p>We will also limit the number of trees to 100 to avoid impractically long compute time. The other parameters will be chosen by the software.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">### create a model ---</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>rf_mod <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="fu">tune</span>(), <span class="at">trees =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
@@ -356,22 +357,23 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(dm_rec) <span class="sc">|&gt;</span></span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_mod)</span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="do">### tune mtry using 5-fold cv ---</span></span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>rf_grid <span class="ot">&lt;-</span> rf_wkfl <span class="sc">|&gt;</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">resamples =</span> dm_5_fold,</span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> <span class="dv">5</span>,</span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(mn_log_loss))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>i Creating pre-processing data to finalize 1 unknown parameter: "mtry"</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="do">### extract best parameter value for mtry ---</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>rf_param_best <span class="ot">&lt;-</span> rf_grid <span class="sc">|&gt;</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_best</span>(<span class="at">metric =</span> <span class="st">'mn_log_loss'</span>)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="do">### fit model to whole training set ---</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>rf_final <span class="ot">&lt;-</span> rf_wkfl <span class="sc">|&gt;</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(rf_param_best) <span class="sc">|&gt;</span></span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(dm_split, <span class="at">metrics =</span> <span class="fu">metric_set</span>(mn_log_loss))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="do">### manually create a grid for tuning ---</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>grid_manual <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="st">'mtry'</span> <span class="ot">=</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="do">### tune mtry using 5-fold cv ---</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>rf_grid <span class="ot">&lt;-</span> rf_wkfl <span class="sc">|&gt;</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">resamples =</span> dm_5_fold,</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">grid =</span> grid_manual,</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">metrics =</span> <span class="fu">metric_set</span>(mn_log_loss))</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="do">### extract best parameter value for mtry ---</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>rf_param_best <span class="ot">&lt;-</span> rf_grid <span class="sc">|&gt;</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select_best</span>(<span class="at">metric =</span> <span class="st">'mn_log_loss'</span>)</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a><span class="do">### fit model to whole training set ---</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>rf_final <span class="ot">&lt;-</span> rf_wkfl <span class="sc">|&gt;</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">finalize_workflow</span>(rf_param_best) <span class="sc">|&gt;</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">last_fit</span>(dm_split, <span class="at">metrics =</span> <span class="fu">metric_set</span>(mn_log_loss))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now our best random forest model, fit to the entire training set, is stored in the object <code>rf_final</code>. We will use this object, along with <code>tree_final</code>, in the next step.</p>
 </section>
@@ -379,10 +381,10 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <h2 class="anchored" data-anchor-id="final-model-selection">Final Model Selection</h2>
 <p>In this section, we compare our classification tree model and random forest model to see which performs better on the test set. The metric we are using is log loss.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(tree_final <span class="sc">|&gt;</span> <span class="fu">collect_metrics</span>(),</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>      rf_final <span class="sc">|&gt;</span> <span class="fu">collect_metrics</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">'model'</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'tree'</span>, <span class="st">'random_forest'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, .metric, .estimate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(tree_final <span class="sc">|&gt;</span> <span class="fu">collect_metrics</span>(),</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>      rf_final <span class="sc">|&gt;</span> <span class="fu">collect_metrics</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">'model'</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">'tree'</span>, <span class="st">'random_forest'</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, .metric, .estimate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 3
   model         .metric     .estimate
@@ -394,12 +396,12 @@ dbl (22): Diabetes_binary, HighBP, HighChol, CholCheck, BMI, Smoker, Stroke,...
 <p>We see that the random forest model has a lower value for log loss on the test set. Therefore, we will choose the random forest model as our “best” model!</p>
 <p>In our API, we are going to fit our “best” model to the entire data set. In order to do this, we need to know what the tuned value is for our parameter <code>mtry</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>rf_param_best</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>rf_param_best</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 2
    mtry .config        
   &lt;int&gt; &lt;chr&gt;          
-1     3 pre0_mod2_post0</code></pre>
+1     3 pre0_mod3_post0</code></pre>
 </div>
 </div>
 <p>It looks like the optimal value is 3, which means that during the fitting of the random forest model to the full data set in the API, we should be considering a random sample of 3 of the available 8 predictors at each step of the recursive binary splitting algorithm (described above). Since we have already found this value, we can just set the <code>mtry</code> argument to 3 when it comes time to fit the model to the whole data set.</p>
