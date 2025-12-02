@@ -1,6 +1,6 @@
 #Author: Brian Rabe
-#Date: 11/29/2025
-#Purpose: Fit our random forest model with tuned mtry parameter to the entire data set and define an API. 
+#Date: 12/2/2025
+#Purpose: Fit our random forest model with tuned mtry parameter to the entire data set and define an API which allows user to explore the model, search for EDA/Modeling pages, and view the confusion matrix for the model fit to the full data set. 
 #Collaborators: No direct collaborators, but Dr. Justin Post's ST558 course materials were used heavily in creating the materials in this file. 
 
 ### load necessary packages ----
@@ -12,7 +12,7 @@ library(tidymodels)
 set.seed(1993)
 
 ### read in diabetes data ----
-dm_data <- read_csv('../diabetes_binary_health_indicators_BRFSS2015.csv')
+dm_data <- read_csv('diabetes_binary_health_indicators_BRFSS2015.csv')
 
 ### change relevant columns to factor type ---
 dm_data <- dm_data |>
@@ -49,7 +49,7 @@ rf_fit <- rf_wkfl |>
 ###Now we start defining the API ----
 
 #* @apiTitle Diabetes Prediction
-#* @apiDescription This API takes a set of health data predictors and predicts whether the individual has diabetes. 
+#* @apiDescription This API takes a set of health data points which the user can choose and predicts whether the individual has diabetes. 
 
 #* Make a diabetes prediction 
 #* @param bmi What is the person's BMI?
@@ -58,7 +58,7 @@ rf_fit <- rf_wkfl |>
 #* @param fruits Does the person consume fruit one or more times per day?
 #* @param veggies Does the person consume vegetables one or more times per day?
 #* @param alcohol Does the person consume 14 or more alcoholic drinks per week (if male) or 7 or more drinks per week (if female)?
-#* @param diff_walk Does the person have serious difficulty walking or climbing stairs
+#* @param diff_walk Does the person have serious difficulty walking or climbing stairs?
 #* @param sex What is the person's sex?
 #* @get /pred
 function(bmi = mean(dm_data$BMI), 
@@ -83,14 +83,14 @@ function(bmi = mean(dm_data$BMI),
 
   
   
-  ### predict presence or absence of diabetes ----
+  ### predict presence or absence of diabetes while ensuring inputs are typed in precisely by user ----
   ifelse(sum(c(smoker, activity, fruits, veggies, alcohol, diff_walk, sex) %in% c('no','yes', 'male', 'female')) == 7,
          predict(rf_fit, df),
          'Please double check that you have typed your categorical inputs in correctly. All inputs should be written with lowercase characters only. Defaults have been set in the event you leave an input box blank.')
 }
 
 ### Three example function calls to API for pred endpoint ---
-### Note these will work when running the API through docker as we have specified a port in the docker image. If you try to run these locally they may not work if you don't modify the port appropriately ---
+### Note that we have specified a particular host (the local host 127.0.0.1) and port (8000) for the purpose of getting these function calls to work while running the docker image as a container. The function calls don't work if we try to run the API straight from R without specifying the port to be 8000 ---
 # 1. http://127.0.0.1:8000/pred?bmi=49&smoker=yes&activity=no&fruits=no&veggies=yes&alcohol=no&diff_walk=yes&sex=male
 # 2. http://127.0.0.1:8000/pred?bmi=55&smoker=no&activity=no&fruits=no&veggies=no&alcohol=yes&diff_walk=no&sex=female
 # 3. http://127.0.0.1:8000/pred?bmi=57&smoker=yes&activity=no&fruits=no&veggies=no&alcohol=no&diff_walk=no&sex=male
