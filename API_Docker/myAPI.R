@@ -8,6 +8,9 @@ library(plumber)
 library(tidyverse)
 library(tidymodels)
 
+### set seed for reproducibility ----
+set.seed(1993)
+
 ### read in diabetes data ----
 dm_data <- read_csv('../diabetes_binary_health_indicators_BRFSS2015.csv')
 
